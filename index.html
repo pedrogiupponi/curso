@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treinamento AML/CFT - CIM Europe & Carlyle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary: #001A3D;
+            --primary-light: #002A5C;
+            --secondary: #C5A059;
+            --accent: #E63946;
+            --bg: #F3F4F7;
+            --white: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --radius: 12px;
+        }
+
+        * { box-sizing: border-box; transition: all 0.2s ease; }
+        
+        body { 
+            background-color: var(--bg); 
+            margin: 0; 
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            flex-direction: row; 
+        }
+
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: var(--bg);
+            overflow: hidden;
+        }
+
+        .top-header {
+            height: 70px;
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            box-shadow: var(--shadow);
+            z-index: 10;
+        }
+
+        .content-body {
+            flex-grow: 1;
+            padding: 40px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .slide-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 50px;
+            box-shadow: var(--shadow);
+            max-width: 1050px;
+            margin: 0 auto;
+            min-height: 600px;
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .slide-card.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .sidebar {
+            width: 300px;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 30px 0;
+            flex-shrink: 0;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.1);
+        }
+
+        .logo-area { padding: 0 25px 30px; text-align: center; }
+        .logo-area h2 { font-family: 'Montserrat', sans-serif; font-size: 16px; color: var(--secondary); margin: 0; letter-spacing: 1px; }
+
+        .nav-list { flex-grow: 1; overflow-y: auto; list-style: none; padding: 0; margin: 0; }
+        .nav-item {
+            padding: 10px 25px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            opacity: 0.5;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-right: 4px solid transparent;
+        }
+        .nav-item.active { opacity: 1; background: rgba(255,255,255,0.1); border-right-color: var(--secondary); color: var(--secondary); }
+        .nav-item.completed { color: #10B981; opacity: 1; }
+
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; background: #E5E7EB; color: var(--text-muted); margin-bottom: 15px; }
+        .badge-quiz { background: var(--secondary); color: white; }
+
+        h1, h2, h3 { font-family: 'Montserrat', sans-serif; color: var(--primary); margin: 0; }
+        .slide-title { font-size: 26px; margin-bottom: 20px; line-height: 1.2; border-left: 5px solid var(--secondary); padding-left: 15px; }
+        p, li { font-size: 14px; line-height: 1.6; color: var(--text-light); }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+        .info-box { background: #F9FAFB; border: 1px solid #E5E7EB; padding: 15px; border-radius: 8px; margin-top: 15px; }
+        .stat-item { text-align: center; padding: 10px; border-radius: 8px; background: var(--primary); color: white; flex: 1; }
+        .stat-val { font-size: 18px; font-weight: 700; color: var(--secondary); display: block; }
+
+        /* Quiz */
+        .quiz-option { background: #fff; border: 2px solid #F3F4F6; padding: 12px 18px; border-radius: 10px; margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 13px; }
+        .quiz-option:hover { border-color: var(--secondary); }
+        .option-indicator { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #D1D5DB; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; }
+        .quiz-option.correct { border-color: #10B981; background: #ECFDF5; }
+        .quiz-option.incorrect { border-color: #EF4444; background: #FEF2F2; }
+        .feedback-box { display: none; padding: 12px; border-radius: 8px; margin-top: 10px; font-weight: 600; font-size: 13px; }
+
+        /* Footer */
+        .bottom-nav { padding: 15px 40px; background: var(--white); display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #E5E7EB; }
+        .btn { padding: 10px 24px; border-radius: 6px; font-weight: 600; cursor: pointer; border: none; display: flex; align-items: center; gap: 8px; font-size: 13px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-outline { background: transparent; border: 1px solid #D1D5DB; color: var(--text-main); }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .progress-container { width: 150px; height: 6px; background: #E5E7EB; border-radius: 3px; overflow: hidden; }
+        #progress-fill { height: 100%; width: 0%; background: var(--secondary); transition: width 0.3s; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+        th { text-align: left; background: #f0f0f0; padding: 8px; border-bottom: 2px solid #ddd; }
+        td { padding: 8px; border-bottom: 1px solid #eee; }
+    </style>
+</head>
+<body>
+
+    <main class="main-content">
+        <header class="top-header">
+            <div style="font-weight: 700; font-size: 14px; color: var(--primary);">
+                <i class="fa-solid fa-building-columns" style="margin-right: 8px;"></i>
+                CARLYLE | CIM EUROPE - REFRESHER 2024
+            </div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div class="progress-container"><div id="progress-fill"></div></div>
+                <span style="font-size: 11px; font-weight: 700;" id="progress-text">0%</span>
+            </div>
+        </header>
+
+        <section class="content-body" id="slide-container">
+            
+            <!-- SLIDE 1: CAPA -->
+            <div class="slide-card active" id="s1">
+                <span class="badge">Início</span>
+                <h1 class="slide-title">Combate à Lavagem de Dinheiro e Financiamento ao Terrorismo</h1>
+                <p><strong>Apresentado por:</strong> Hervé Ballone (Conducting Officer & CCO)</p>
+                <div class="info-box">
+                    <p>Esta sessão de atualização anual (Annual Refresher) detalha as obrigações da <strong>CIM Europe S.à r.l.</strong> e o compromisso do Carlyle Group com a conformidade regulatória de Luxemburgo.</p>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <div class="stat-item"><span class="stat-val">CSSF</span><small>Supervisão Principal</small></div>
+                    <div class="stat-item"><span class="stat-val">2024</span><small>Ciclo Atual</small></div>
+                </div>
+            </div>
+
+            <!-- SLIDE 2: DEFINIÇÃO LD -->
+            <div class="slide-card" id="s2">
+                <span class="badge">Seção 01</span>
+                <h1 class="slide-title">O que é Lavagem de Dinheiro?</h1>
+                <p>De acordo com a definição do PDF (Seção I), LD é:</p>
+                <ul style="font-size: 13px;">
+                    <li>Facilitar conscientemente a justificativa falsa da origem de propriedade ou bens oriundos de crimes antecedentes (predicate offences).</li>
+                    <li>Auxiliar em transações de colocação, dissimulação ou conversão sabendo da origem criminosa.</li>
+                    <li>Adquirir, deter ou usar bens sabendo, no momento do recebimento, que são produtos de crime.</li>
+                    <li>Tentar cometer qualquer uma das ofensas acima.</li>
+                </ul>
+                <div class="info-box">
+                    <strong>Crimes Antecedentes (Art. 506-1 Código Penal Lux):</strong> Crimes puníveis com pena mínima de prisão superior a 6 meses, incluindo fraude fiscal, corrupção e green washing.
+                </div>
+            </div>
+
+            <!-- QUIZ 1 -->
+            <div class="slide-card" id="s3">
+                <span class="badge badge-quiz">Quiz 01</span>
+                <h2 class="slide-title">Verificação: Definição</h2>
+                <p>O que constitui lavagem de dinheiro segundo o Código Penal de Luxemburgo?</p>
+                <div class="quiz-container">
+                    <div class="quiz-option" onclick="handleQuiz(this, false, 1)">
+                        <div class="option-indicator">A</div> <span>Apenas o depósito de dinheiro físico no banco.</span>
+                    </div>
+                    <div class="quiz-option" onclick="handleQuiz(this, true, 1)">
+                        <div class="option-indicator">B</div> <span>Facilitar conscientemente a justificativa falsa da origem de bens de crimes.</span>
+                    </div>
+                    <div class="quiz-option" onclick="handleQuiz(this, false, 1)">
+                        <div class="option-indicator">C</div> <span>Realizar investimentos imobiliários com heranças declaradas.</span>
+                    </div>
+                </div>
+                <div id="q1-feedback" class="feedback-box"></div>
+            </div>
+
+            <!-- SLIDE 3: AS 3 ETAPAS -->
+            <div class="slide-card" id="s4">
+                <span class="badge">Seção 01</span>
+                <h1 class="slide-title">As 3 Etapas da Lavagem</h1>
+                <div class="grid-2">
+                    <div class="info-box">
+                        <h3>1. Placement (Colocação)</h3>
+                        <p style="font-size: 12px;">Fundos ilegais entram no sistema financeiro/comercial (ex: smurfing/estruturação de depósitos).</p>
+                    </div>
+                    <div class="info-box">
+                        <h3>2. Layering (Ocultação)</h3>
+                        <p style="font-size: 12px;">Fundos são movidos entre múltiplas transações complexas para esconder o rastro e a origem.</p>
+                    </div>
+                </div>
+                <div class="info-box" style="margin-top: 10px;">
+                    <h3>3. Integration (Integração)</h3>
+                    <p style="font-size: 12px;">Ativos são reintroduzidos na economia legal como investimentos, poupança ou gastos (ex: imóveis, valores mobiliários).</p>
+                </div>
+            </div>
+
+            <!-- QUIZ 2 -->
+            <div class="slide-card" id="s5">
+                <span class="badge badge-quiz">Quiz 02</span>
+                <h2 class="slide-title">Verificação: Fases</h2>
+                <p>Em qual etapa ocorre a criação de "camadas" de transações para esconder a origem do dinheiro?</p>
+                <div class="quiz-container">
+                    <div class="quiz-option" onclick="handleQuiz(this, false, 2)">
+                        <div class="option-indicator">A</div> <span>Placement</span>
+                    </div>
+                    <div class="quiz-option" onclick="handleQuiz(this, true, 2)">
+                        <div class="option-indicator">B</div> <span>Layering</span>
+                    </div>
+                    <div class="quiz-option" onclick="handleQuiz(this, false, 2)">
+                        <div class="option-indicator">C</div> <span>Integration</span>
+                    </div>
+                </div>
+                <div id="q2-feedback" class="feedback-box"></div>
+            </div>
+
+            <!-- SLIDE 4: ML vs TF -->
+            <div class="slide-card" id="s6">
+                <span class="badge">Seção 01</span>
+                <h1 class="slide-title">Diferença: Lavagem vs Terrorismo</h1>
+                <table style="font-size: 14px;">
+                    <tr>
+                        <th width="50%">Lavagem de Dinheiro (ML)</th>
+                        <th>Financiamento ao Terrorismo (TF)</th>
+                    </tr>
+                    <tr>
+                        <td>A <strong>ORIGEM</strong> do dinheiro é ilícita.</td>
+                        <td>O <strong>DESTINO</strong> do dinheiro é ilícito.</td>
+                    </tr>
+                    <tr>
+                        <td>Foco em limpar lucro de crimes passados.</td>
+                        <td>Dinheiro pode vir de fontes lícitas (doações) ou ilícitas.</td>
+                    </tr>
+                </table>
+                <div class="info-box" style="border-left: 4px solid var(--accent);">
+                    <strong>Sanções Financeiras:</strong> O Conselho de Segurança da ONU é a principal fonte de padrões globais (Cap. VII, Art. 41), vinculante para todos os países membros.
+                </div>
+            </div>
+
+            <!-- SLIDE 5: QUADRO REGULATÓRIO & CSSF -->
+            <div class="slide-card" id="s7">
+                <span class="badge">Seção 03</span>
+                <h1 class="slide-title">Supervisão: Motivos para Levar a Sério</h1>
+                <p>A CSSF tem aplicado multas administrativas severas recentemente (Seção III):</p>
+                <ul style="font-size: 12px;">
+                    <li><strong>Banque Degroof Petercam (2022):</strong> Multa de € 1.560.000.</li>
+                    <li><strong>BIL (2020):</strong> Multa de € 4.600.000.</li>
+                    <li><strong>Mirabaud & Cie (2021):</strong> Multa de € 440.000.</li>
+                    <li><strong>RBC Investor Services (2021):</strong> Multa de € 237.000.</li>
+                </ul>
+                <div class="info-box">
+                    <strong>Poderes da CSSF/AED:</strong> Acesso a qualquer documento, realização de inspeções no local, intimação de pessoas e encaminhamento ao Procurador do Estado para persecução criminal.
+                </div>
+            </div>
+
+            <!-- QUIZ 3 -->
+            <div class="slide-card" id="s8">
+                <span class="badge badge-quiz">Quiz 03</span>
+                <h2 class="slide-title">Verificação: Multas</h2>
+                <p>Qual banco recebeu uma multa da CSSF de 1,56 milhão de euros em dezembro de 2022?</p>
+                <div class="quiz-container">
+                    <div class="quiz-option" onclick="handleQuiz(this, true, 3)">
+                        <div class="option-indicator">A</div> <span>Banque Degroof Petercam</span>
+                    </div>
+                    <div class="quiz-option" onclick="handleQuiz(this, false, 3)">
+                        <div class="option-indicator">B</div> <span>HSBC Private Bank</span>
+                    </div>
+                    <div class="quiz-option" onclick="handleQuiz(this, false, 3)">
+                        <div class="option-indicator">C</div> <span>JPMorgan</span>
+                    </div>
+                </div>
+                <div id="q3-feedback" class="feedback-box"></div>
+            </div>
+
+            <!-- SLIDE 6: ORGANIZAÇÃO CIM EUROPE -->
+            <div class="slide-card" id="s9">
+                <span class="badge">Seção 02 & 04</span>
+                <h1 class="slide-title">Organização Interna: RR & RC</h1>
+                <p>Conforme o PDF, a CIM Europe deve nomear:</p>
+                <div class="grid-2">
+                    <div class="info-box" style="border-top: 4px solid var(--primary);">
+                        <h3>RR (Responsable du Respect)</h3>
+                        <p style="font-size: 12px;">Membro do Board (Conselho) responsável pelo cumprimento das obrigações profissionais. Catherine Ziobro atua como RR no Group Level.</p>
+                    </div>
+                    <div class="info-box" style="border-top: 4px solid var(--secondary);">
+                        <h3>RC (Responsable du Contrôle)</h3>
+                        <p style="font-size: 12px;">Oficial de Compliance no nível hierárquico apropriado. Hervé Ballone é o RC desde Setembro de 2020.</p>
+                    </div>
+                </div>
+                <div class="info-box" style="margin-top:10px;">
+                    <strong>As 3 Linhas de Defesa:</strong> 1ª Unidades Operacionais (contato direto), 2ª Compliance & Suporte, 3ª Auditoria (independente).
+                </div>
+            </div>
+
+            <!-- QUIZ 4 -->
+            <div class="slide-card" id="s10">
+                <span class="badge badge-quiz">Quiz 04</span>
+                <h2 class="slide-title">Verificação: Cargos</h2>
+                <p>Quem é o Responsável pelo Controle (RC) da CIM Europe desde 2020?</p>
+                <div class="quiz-container">
+                    <div class="quiz-option" onclick="handleQuiz(this, false, 4)">
+                        <div class="option-indicator">A</div> <span>Catherine Ziobro</span>
+                    </div>
+                    <div class="quiz-option" onclick="handleQuiz(this, true, 4)">
+                        <div class="option-indicator">B</div> <span>Hervé Ballone</span>
+                    </div>
+                    <div class="quiz-option" onclick="handleQuiz(this, false, 4)">
+                        <div class="option-indicator">C</div> <span>Pierre Beissel</span>
+                    </div>
+                </div>
+                <div id="q4-feedback" class="feedback-box"></div>
+            </div>
+
+            <!-- SLIDE 7: RBE & UBO -->
+            <div class="slide-card" id="s11">
+                <span class="badge">Seção 03</span>
+                <h1 class="slide-title">Beneficiário Final (UBO) e RBE</h1>
+                <p><strong>UBO (Ultimate Beneficial Owner):</strong> Abordagem em cascata (Seção III.D):</p>
+                <ol style="font-size: 13px;">
+                    <li>Identificar Pessoa Natural com > 25% de Ações/Votos.</li>
+                    <li>Se impossível, identificar pessoa que controla a entidade por outros meios.</li>
+                    <li>Se ainda impossível, identificar o <strong>Senior Managing Official</strong>.</li>
+                </ol>
+                <div class="info-box">
+                    <strong>RBE (Registre des Bénéficiaires Effectifs):</strong> Registro obrigatório desde 2019. Falha em registrar o UBO em um mês pode gerar multas de € 1.250 a € 1.250.000.
+                </div>
+            </div>
+
+            <!-- QUIZ 5 -->
+            <div class="slide-card" id="s12">
+                <span class="badge badge-quiz">Quiz 05</span>
+                <h2 class="slide-title">Verificação: UBO</h2>
+                <p>Qual é o limiar de participação acionária para ser identificado diretamente como UBO?</p>
+                <div class="quiz-container">
+                    <div class="quiz-option" onclick="handleQuiz(this, false, 5)">
+                        <div class="option-indicator">A</div> <span>Exatamente 10%</span>
+                    </div>
+                    <div class="quiz-option" onclick="handleQuiz(this, true, 5)">
+                        <div class="option-indicator">B</div> <span>Mais de 25%</span>
+                    </div>
+                    <div class="quiz-option" onclick="handleQuiz(this, false, 5)">
+                        <div class="option-indicator">C</div> <span>Mínimo 50%</span>
+                    </div>
+                </div>
+                <div id="q5-feedback" class="feedback-box"></div>
+            </div>
+
+            <!-- SLIDE 8: RBA & DUE DILIGENCE -->
+            <div class="slide-card" id="s13">
+                <span class="badge">Seção 05</span>
+                <h1 class="slide-title">Abordagem Baseada em Risco (RBA)</h1>
+                <p>A aplicação da RBA não é opcional e visa focar esforços onde eles são necessários:</p>
+                <ul style="font-size: 13px;">
+                    <li><strong>SDD (Simplificada):</strong> Para clientes de baixo risco (ex: autoridades públicas).</li>
+                    <li><strong>CDD (Padrão):</strong> Identificação, verificação e monitoramento contínuo.</li>
+                    <li><strong>EDD (Reforçada):</strong> Obrigatória para PEPs, países de alto risco ou transações complexas.</li>
+                </ul>
+                <div class="info-box">
+                    <strong>PEP (Pessoa Politicamente Exposta):</strong> O PDF esclarece que a regra de "cessar condição de PEP após 1 ano" foi removida. Deve-se aplicar RBA até que o risco cesse de fato.
+                </div>
+            </div>
+
+            <!-- SLIDE 9: ASSET DUE DILIGENCE -->
+            <div class="slide-card" id="s14">
+                <span class="badge">Seção 05</span>
+                <h1 class="slide-title">Asset Due Diligence</h1>
+                <p>Em conformidade com a Regulação 20-05 da CSSF, os profissionais devem analisar o risco de ML/TF do <strong>investimento</strong>:</p>
+                <div class="info-box">
+                    <p style="font-size: 12px;">1. Screening de Sanções (TFS) no nome do ativo ou emissor.</p>
+                    <p style="font-size: 12px;">2. Para ativos não listados (unlisted), considerar riscos financeiros relacionados ao Principal e Agente.</p>
+                    <p style="font-size: 12px;">3. Análise formalizada e revisada anualmente.</p>
+                </div>
+                <p style="margin-top:10px; font-weight:700;">Record Keeping: Documentos de CDD devem ser mantidos por 5 anos após o fim da relação (ou 10 anos dependendo da lei).</p>
+            </div>
+
+            <!-- QUIZ 6 -->
+            <div class="slide-card" id="s15">
+                <span class="badge badge-quiz">Quiz 06</span>
+                <h2 class="slide-title">Verificação: Diligência</h2>
+                <p>A Abordagem Baseada em Risco (RBA) permite que o profissional simplesmente ignore suas obrigações se o risco for baixo?</p>
+                <div class="quiz-container">
+                    <div class="quiz-option" onclick="handleQuiz(this, false, 6)">
+                        <div class="option-indicator">A</div> <span>Sim, a RBA isenta de qualquer mitigação em risco baixo.</span>
+                    </div>
+                    <div class="quiz-option" onclick="handleQuiz(this, true, 6)">
+                        <div class="option-indicator">B</div> <span>Não, a RBA exige mitigar riscos mesmo quando avaliados como baixos.</span>
+                    </div>
+                </div>
+                <div id="q6-feedback" class="feedback-box"></div>
+            </div>
+
+            <!-- SLIDE 10: COOPERAÇÃO & TIPPING-OFF -->
+            <div class="slide-card" id="s16">
+                <span class="badge">Seção 06</span>
+                <h1 class="slide-title">Cooperação e Sigilo</h1>
+                <p>Relatórios devem ser feitos à CRF via plataforma <strong>goAML</strong> (Seção VI):</p>
+                <div class="grid-2">
+                    <div class="info-box" style="background:#FEE2E2;">
+                        <h3>No Tipping-Off Rule</h3>
+                        <p style="font-size: 12px;">Proibido divulgar ao cliente ou terceiros que informações foram transmitidas ou que uma investigação está em curso.</p>
+                    </div>
+                    <div class="info-box">
+                        <h3>Diferença SAR vs STR</h3>
+                        <ul style="font-size: 11px;">
+                            <li>SAR: Suspicious Activity Report.</li>
+                            <li>STR: Suspicious Transaction Report.</li>
+                        </ul>
+                    </div>
+                </div>
+                <p style="margin-top:10px; font-size: 12px;">O sigilo profissional não é oponível à CRF (Cooperação Ativa e Passiva).</p>
+            </div>
+
+            <!-- QUIZ 7 -->
+            <div class="slide-card" id="s17">
+                <span class="badge badge-quiz">Quiz 07</span>
+                <h2 class="slide-title">Verificação: Sigilo</h2>
+                <p>O que significa a regra de "No Tipping-off"?</p>
+                <div class="quiz-container">
+                    <div class="quiz-option" onclick="handleQuiz(this, false, 7)">
+                        <div class="option-indicator">A</div> <span>Proibição de dar gorjetas aos fiscais da CSSF.</span>
+                    </div>
+                    <div class="quiz-option" onclick="handleQuiz(this, true, 7)">
+                        <div class="option-indicator">B</div> <span>Proibição de revelar ao cliente que um relatório de suspeita foi feito.</span>
+                    </div>
+                    <div class="quiz-option" onclick="handleQuiz(this, false, 7)">
+                        <div class="option-indicator">C</div> <span>Obrigatoriedade de informar o cliente sobre qualquer investigação interna.</span>
+                    </div>
+                </div>
+                <div id="q7-feedback" class="feedback-box"></div>
+            </div>
+
+            <!-- SLIDE 11: CASO DE ESTUDO -->
+            <div class="slide-card" id="s18">
+                <span class="badge">Seção 07</span>
+                <h1 class="slide-title">Estudo de Caso: Sinais de Alerta</h1>
+                <div class="info-box">
+                    <p><strong>Cenário:</strong> Clientes privados obtêm empréstimos de consumo usando documentos falsos. O dinheiro é transferido para familiares jihadistas, retirado em espécie e enviado à Turquia via operadores de transferência.</p>
+                </div>
+                <div class="grid-2">
+                    <div class="info-box">
+                        <h3>Red Flags Identificados:</h3>
+                        <ul style="font-size: 12px;">
+                            <li>Uso de documentos falsos.</li>
+                            <li>Transferência para familiares em áreas de risco.</li>
+                            <li>Saques em espécie seguidos de remessa internacional.</li>
+                        </ul>
+                    </div>
+                    <div class="info-box" style="border-color: var(--secondary);">
+                        <h3>Controles Necessários:</h3>
+                        <p style="font-size: 12px;">Verificação rigorosa de documentos, monitoramento de destino de fundos e rastreio de sanções contra stakeholders.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FINAL -->
+            <div class="slide-card" id="s19" style="text-align: center; padding-top: 100px;">
+                <i class="fa-solid fa-circle-check" style="font-size: 80px; color: #10B981; margin-bottom: 30px;"></i>
+                <h1>Certificação Concluída</h1>
+                <p>Parabéns! Você completou a atualização anual de AML/CFT da CIM Europe.</p>
+                <p style="font-size: 14px; color: var(--text-muted); margin-top:20px;">Seu registro de participação foi salvo no sistema.</p>
+                <button class="btn btn-primary" style="margin: 40px auto; background: var(--secondary);" onclick="location.reload()">Reiniciar</button>
+            </div>
+
+        </section>
+
+        <footer class="bottom-nav">
+            <button class="btn btn-outline" id="prevBtn" onclick="changeSlide(-1)">
+                <i class="fa-solid fa-chevron-left"></i> Anterior
+            </button>
+            <div style="font-size: 12px; font-weight: 700; color: var(--primary);" id="page-indicator">Slide 1 / 19</div>
+            <button class="btn btn-primary" id="nextBtn" onclick="changeSlide(1)">
+                Próximo <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </footer>
+    </main>
+
+    <aside class="sidebar">
+        <div class="logo-area">
+            <h2>ACADEMY</h2>
+            <p style="font-size: 9px; opacity: 0.5; font-weight: 700;">LUXEMBOURG COMPLIANCE</p>
+        </div>
+        <ul class="nav-list">
+            <li class="nav-item active" onclick="goToSlide(1)">Início / Agenda</li>
+            <li class="nav-item" onclick="goToSlide(2)">01. Definição LD</li>
+            <li class="nav-item" onclick="goToSlide(3)">Quiz 1: LD</li>
+            <li class="nav-item" onclick="goToSlide(4)">01. As 3 Etapas</li>
+            <li class="nav-item" onclick="goToSlide(5)">Quiz 2: Fases</li>
+            <li class="nav-item" onclick="goToSlide(6)">01. ML vs TF</li>
+            <li class="nav-item" onclick="goToSlide(7)">03. Supervisão CSSF</li>
+            <li class="nav-item" onclick="goToSlide(8)">Quiz 3: Multas</li>
+            <li class="nav-item" onclick="goToSlide(9)">02. Org CIM Europe</li>
+            <li class="nav-item" onclick="goToSlide(10)">Quiz 4: RC</li>
+            <li class="nav-item" onclick="goToSlide(11)">03. UBO & RBE</li>
+            <li class="nav-item" onclick="goToSlide(12)">Quiz 5: UBO</li>
+            <li class="nav-item" onclick="goToSlide(13)">05. RBA & PEP</li>
+            <li class="nav-item" onclick="goToSlide(14)">05. Assets & Records</li>
+            <li class="nav-item" onclick="goToSlide(15)">Quiz 6: RBA</li>
+            <li class="nav-item" onclick="goToSlide(16)">06. Cooperação CRF</li>
+            <li class="nav-item" onclick="goToSlide(17)">Quiz 7: Sigilo</li>
+            <li class="nav-item" onclick="goToSlide(18)">07. Estudo de Caso</li>
+            <li class="nav-item" onclick="goToSlide(19)">Finalização</li>
+        </ul>
+        <div style="padding: 20px; margin-top: auto; font-size: 10px; opacity: 0.5; text-align: center;">
+            <i class="fa-solid fa-lock" style="margin-bottom: 5px; display: block; font-size: 14px;"></i>
+            CIM Europe S.A.<br>Trade Secret
+        </div>
+    </aside>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 19;
+        let quizzesCompleted = {};
+
+        function updateUI() {
+            document.querySelectorAll('.slide-card').forEach(s => s.classList.remove('active'));
+            document.getElementById('s' + currentSlide).classList.add('active');
+
+            document.querySelectorAll('.nav-item').forEach((item, idx) => {
+                item.classList.toggle('active', (idx + 1) === currentSlide);
+            });
+
+            const progress = ((currentSlide - 1) / (totalSlides - 1)) * 100;
+            document.getElementById('progress-fill').style.width = progress + '%';
+            document.getElementById('progress-text').innerText = Math.round(progress) + '%';
+            
+            document.getElementById('prevBtn').style.visibility = (currentSlide === 1) ? 'hidden' : 'visible';
+            
+            const nextBtn = document.getElementById('nextBtn');
+            const isQuizSlide = document.getElementById('s' + currentSlide).querySelector('.quiz-container');
+            
+            if (isQuizSlide && !quizzesCompleted[currentSlide]) {
+                nextBtn.disabled = true;
+            } else {
+                nextBtn.disabled = false;
+            }
+
+            if (currentSlide === totalSlides) {
+                nextBtn.style.visibility = 'hidden';
+            } else {
+                nextBtn.style.visibility = 'visible';
+                nextBtn.innerHTML = 'Próximo <i class="fa-solid fa-chevron-right"></i>';
+            }
+            
+            document.getElementById('page-indicator').innerText = `Slide ${currentSlide} / ${totalSlides}`;
+            document.getElementById('slide-container').scrollTop = 0;
+        }
+
+        function changeSlide(dir) {
+            if (dir === 1 && currentSlide < totalSlides) {
+                currentSlide++;
+            } else if (dir === -1 && currentSlide > 1) {
+                currentSlide--;
+            }
+            updateUI();
+        }
+
+        function goToSlide(n) {
+            if (n < currentSlide) {
+                currentSlide = n;
+            } else {
+                let canGo = true;
+                for (let i = currentSlide; i < n; i++) {
+                    const slide = document.getElementById('s' + i);
+                    if (slide && slide.querySelector('.quiz-container') && !quizzesCompleted[i]) {
+                        canGo = false;
+                        break;
+                    }
+                }
+                if (canGo) currentSlide = n;
+            }
+            updateUI();
+        }
+
+        function handleQuiz(element, isCorrect, quizNum) {
+            const quizSlideId = currentSlide;
+            const options = element.parentElement.querySelectorAll('.quiz-option');
+            const feedback = document.getElementById('q' + quizNum + '-feedback');
+
+            options.forEach(opt => {
+                opt.classList.remove('correct', 'incorrect');
+                opt.style.pointerEvents = 'none';
+            });
+
+            feedback.style.display = 'block';
+
+            if (isCorrect) {
+                element.classList.add('correct');
+                feedback.innerHTML = '<i class="fa-solid fa-check-circle"></i> Correto! Você pode avançar.';
+                feedback.style.color = '#155724';
+                feedback.style.backgroundColor = '#d4edda';
+                quizzesCompleted[quizSlideId] = true;
+                document.querySelectorAll('.nav-item')[quizSlideId - 1].classList.add('completed');
+                setTimeout(() => changeSlide(1), 1500);
+            } else {
+                element.classList.add('incorrect');
+                feedback.innerHTML = '<i class="fa-solid fa-times-circle"></i> Incorreto. Reveja o conteúdo e tente novamente.';
+                feedback.style.color = '#721c24';
+                feedback.style.backgroundColor = '#f8d7da';
+                setTimeout(() => {
+                    options.forEach(opt => opt.style.pointerEvents = 'auto');
+                }, 1000);
+            }
+            updateUI();
+        }
+
+        updateUI();
+    </script>
+</body>
+</html>
